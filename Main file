@@ -1,0 +1,708 @@
+
+#include<iostream>
+#include<cstring>
+#include<stdlib.h>
+#include<ctype.h>
+#include <fstream>
+#include <string>
+using namespace std;
+
+string arr[] = { "auto","register","inline","const","restrict", "bool","char"
+,"short","long","signed","unsigned","imaginary","complex", "struct","union", "enum","ellipsis","case"
+"DEFAULT","if","else","switch", "while","do", "for", "goto","continue", "break","restrict"
+"void", "using", "namespace", "int", "include", "iostream", "std", "main",
+"cin", "cout", "return", "float", "double", "string" };
+
+string x0[2000][2];
+int counter = 0;
+int lol = 0;
+string curr_token;
+
+bool isKeyword(string a)
+{
+	for (int i = 0; i < 41; i++)
+	{
+		if (arr[i] == a)
+
+		{
+			return true;
+		}
+	}
+	return false;
+}
+bool isPunctuator(char ch)					//check if the given character is a punctuator or not
+{
+	if (ch == ' ' || ch == '+' || ch == '-' || ch == '*' ||
+		ch == '/' || ch == ',' || ch == ';' || ch == '>' ||
+		ch == '<' || ch == '=' || ch == '(' || ch == ')' ||
+		ch == '[' || ch == ']' || ch == '{' || ch == '}' ||
+		ch == '&' || ch =='!=' || ch == '|')
+	{
+		return true;
+	}
+	return false;
+}
+
+bool validIdentifier(string str)						//check if the given identifier is valid or not
+{
+	if (str[0] == '0' || str[0] == '1' || str[0] == '2' ||
+		str[0] == '3' || str[0] == '4' || str[0] == '5' ||
+		str[0] == '6' || str[0] == '7' || str[0] == '8' ||
+		str[0] == '9' || isPunctuator(str[0]) == true)
+	{
+		return false;
+	}									//if first character of string is a digit or a special character, identifier is not valid
+	int i, len = str.length();
+	if (len == 1)
+	{
+		return true;
+	}										//if length is one, validation is already completed, hence return true
+	else
+	{
+		for (i = 1; i < len; i++)						//identifier cannot contain special characters
+		{
+			if (isPunctuator(str[i]) == true)
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool isNumber(string str)							//check if the given substring is a number or not
+{
+	int i, len = str.length(), numOfDecimal = 0;
+	if (len == 0)
+	{
+		return false;
+	}
+	for (i = 0; i < len; i++)
+	{
+		if (numOfDecimal > 1 && str[i] == '.')
+		{
+			return true;
+		}
+		else if (numOfDecimal <= 1)
+		{
+			numOfDecimal++;
+		}
+		if (str[i] != '0' && str[i] != '1' && str[i] != '2'
+			&& str[i] != '3' && str[i] != '4' && str[i] != '5'
+			&& str[i] != '6' && str[i] != '7' && str[i] != '8'
+			&& str[i] != '9' || (str[i] == '-' && i > 0))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+string c;
+void parser()
+{
+	for (int i = 0; i < counter; i++)
+	{
+		if (curr_token == "#")
+		{
+			c = curr_token;
+			lol++;
+			curr_token = x0[lol][0];
+			if (curr_token == "include")
+			{
+				lol++;
+				curr_token = x0[lol][0];
+				if (curr_token == "<")
+				{
+					lol++;
+					curr_token = x0[lol][0];
+					if (curr_token == "iostream" || curr_token == "string" || curr_token == "fstream" || curr_token == "math.h")
+					{
+						lol++;
+						curr_token = x0[lol][0];
+						if (curr_token == ">")
+						{
+							cout << "this line is grammarly clear	" << c << endl;
+							lol++;
+							curr_token = x0[lol][0];
+
+							//parser();
+
+						}
+						else cout << "this line is grammarly error" << endl;
+
+					}
+					else cout << "this line is grammarly error" << endl;
+
+				}
+				else cout << "this line is grammarly error" << endl;
+			}
+			else cout << "this line is grammarly error" << endl;
+		}
+		else if (curr_token == "{")
+		{
+			lol++;
+			curr_token = x0[lol][0];
+			//parser();
+
+		}
+		else if (curr_token == "using")
+		{
+			c = curr_token;
+			lol++;
+			curr_token = x0[lol][0];
+			if (curr_token == "namespace")
+			{
+				lol++;
+				curr_token = x0[lol][0];
+				if (curr_token == "std")
+				{
+					lol++;
+					curr_token = x0[lol][0];
+					if (curr_token == ";")
+					{
+						cout << "this line is grammarly clear	" << c << endl;
+						lol++;
+						curr_token = x0[lol][0];
+						//parser();
+					}
+					else cout << "this line is grammarly error" << endl;
+				}
+				else cout << "this line is grammarly error" << endl;
+			}
+			else cout << "this line is grammarly error" << endl;
+		}
+		else if (curr_token == "int")
+		{
+			c = curr_token;
+			lol++;
+			curr_token = x0[lol][0];
+			if (curr_token == "main")
+			{
+				lol++;
+				curr_token = x0[lol][0];
+				if (curr_token == "()")
+				{
+					cout << "this line is grammarly clear	" << c << endl;
+					lol++;
+					curr_token = x0[lol][0];
+					//parser();
+				}
+				else cout << "this line is grammarly error" << endl;
+			}
+			else if (x0[lol][1] == "identifier")
+			{
+				lol++;
+				curr_token = x0[lol][0];
+				if (curr_token == "=")
+				{
+					lol++;
+					curr_token = x0[lol][0];
+
+					if (x0[lol][1] == "identifier")
+					{
+						lol++;
+						curr_token = x0[lol][0];
+						c = curr_token;
+						if (curr_token == ";")
+						{
+							cout << "this line is grammarly clear	" << c << endl;
+							lol++;
+							curr_token = x0[lol][0];
+							//parser();
+						}
+						else cout << "this line is grammarly error" << endl;
+
+					}
+					else if (x0[lol][1] == "number")
+					{
+						lol++;
+						curr_token = x0[lol][0];
+						if (curr_token == ";")
+						{
+							cout << "this line is grammarly clear	" << c << endl;
+							lol++;
+							curr_token = x0[lol][0];
+							//parser();
+						}
+						else cout << "this line is grammarly error" << endl;
+					}
+					else cout << "this line is grammarly error" << endl;
+				}
+				else if (curr_token == ",")
+				{
+					lol++;
+					curr_token = x0[lol][0];
+					if (x0[lol][1] == "identifier")
+					{
+						lol++;
+						curr_token = x0[lol][0];
+						if (curr_token == ";")
+						{
+							cout << "this line is grammarly clear	" << c << endl;
+							lol++;
+							curr_token = x0[lol][0];
+							//parser();
+						}
+						else cout << "this line is grammarly error" << endl;
+					}
+					else cout << "this line is grammarly error" << endl;
+				}
+				else cout << "this line is grammarly error" << endl;
+
+			}
+		}
+		else if (curr_token == "cout")
+		{
+			c = curr_token;
+			lol++;
+			curr_token = x0[lol][0];
+			if (curr_token == "<<")
+			{
+				lol++;
+				curr_token = x0[lol][0];
+				if (curr_token == "\"")
+				{
+					lol++;
+					curr_token = x0[lol][0];
+					if (x0[lol][1] == "identifier")
+					{
+						lol++;
+						curr_token = x0[lol][0];
+						if (x0[lol][1] == "identifier")
+						{
+							lol++;
+							curr_token = x0[lol][0];
+							if (curr_token == "\"")
+							{
+								lol++;
+								curr_token = x0[lol][0];
+
+								if (curr_token == ";")
+								{
+									cout << "this line is grammarly clear	" << c << endl;
+									lol++;
+									curr_token = x0[lol][0];
+									//parser();
+								}
+								else cout << "this line is grammarly error" << endl;
+							}
+							else cout << "this line is grammarly error" << endl;
+						}
+						else if (curr_token == "\"")
+						{
+							lol++;
+							curr_token = x0[lol][0];
+							if (curr_token == ";")
+							{
+								cout << "this line is grammarly clear	" << c << endl;
+								lol++;
+								curr_token = x0[lol][0];
+								//parser();
+							}
+							else cout << "this line is grammarly error" << endl;
+						}
+						else cout << "this line is grammarly error" << endl;
+					}
+					else cout << "this line is grammarly error" << endl;
+				}
+				else if(x0[lol][1] == "identifier")
+				{
+					lol++;
+					curr_token = x0[lol][0];
+					if (curr_token == ";")
+					{
+						cout << "this line is grammarly clear	" << c << endl;
+						lol++;
+						curr_token = x0[lol][0];
+						//parser();
+					}
+					else cout << "this line is grammarly error" << endl;
+
+				}
+			}
+			else cout << "this line is grammarly error" << endl;
+
+		}
+		else if (curr_token == "cin")
+		{
+			c = curr_token;
+			lol++;
+			curr_token = x0[lol][0];
+			if (curr_token == ">>")
+			{
+				lol++;
+				curr_token = x0[lol][0];
+				if (x0[lol][1] == "identifier")
+				{
+					lol++;
+					curr_token = x0[lol][0];
+					if (curr_token == ">>")
+					{
+						lol++;
+						curr_token = x0[lol][0];
+						if (x0[lol][1] == "identifier")
+						{
+							lol++;
+							curr_token = x0[lol][0];
+							if (curr_token == ";")
+							{
+								cout << "this line is grammarly clear	" << c << endl;
+								lol++;
+								curr_token = x0[lol][0];
+							}
+							else cout << "this line is grammarly error" << endl;
+						}
+						else cout << "this line is grammarly error" << endl;
+					}
+					else if (curr_token == ";")
+					{
+						cout << "this line is grammarly clear	" << c << endl;
+						lol++;
+						curr_token = x0[lol][0];
+					}
+					else cout << "this line is grammarly error" << endl;
+				}
+				else cout << "this line is grammarly error" << endl;
+			}
+			else cout << "this line is grammarly error" << endl;
+		}
+		else if (curr_token == "while")
+		{
+			c = curr_token;
+			lol++;
+			curr_token = x0[lol][0];
+
+			if (curr_token == "(")
+			{
+				lol++;
+				curr_token = x0[lol][0];
+				if (x0[lol][1] == "identifier")
+				{
+					lol++;
+					curr_token = x0[lol][0];
+					if (curr_token == "==" || curr_token == "!=" || curr_token == "<" || curr_token == "<=" || curr_token == ">" || curr_token == ">=")
+					{
+						lol++;
+						curr_token = x0[lol][0];
+						if (x0[lol][1] == "identifier")
+						{
+							lol++;
+							curr_token = x0[lol][0];
+							if (curr_token == ")")
+							{
+								lol++;
+								curr_token = x0[lol][0];
+								if (curr_token == "{")
+								{
+									lol++;
+									curr_token = x0[lol][0]; cout << "this line is grammarly clear	" << c << endl;
+									parser();
+									
+
+								}
+							}
+						}
+						else if (x0[lol][1] == "number")
+						{
+							lol++;
+							curr_token = x0[lol][0];
+							if (curr_token == ")")
+							{
+								lol++;
+								curr_token = x0[lol][0];
+								if (curr_token == "{")
+								{
+									lol++;
+									curr_token = x0[lol][0]; cout << "this line is grammarly clear	" << c << endl;
+									parser();
+									
+								}
+								else cout << "this line is grammarly error" << endl;
+							}
+							else cout << "this line is grammarly error" << endl;
+						}
+						else cout << "this line is grammarly error" << endl;
+
+					}
+					else cout << "this line is grammarly error" << endl;
+				}
+				else cout << "this line is grammarly error" << endl;
+			}
+			else cout << "this line is grammarly error" << endl;
+		}
+		else if (curr_token == "if")
+		{
+			c = curr_token;
+			lol++;
+			curr_token = x0[lol][0];
+			if (curr_token == "(")
+			{
+				lol++;
+				curr_token = x0[lol][0];
+				if (x0[lol][1] == "identifier")
+				{
+					lol++;
+					curr_token = x0[lol][0];
+
+					if (curr_token == "==" || curr_token == "!=" || curr_token == "<" || curr_token == "<=" || curr_token == ">" || curr_token == ">=")
+					{
+						lol++;
+						curr_token = x0[lol][0];
+
+						if (x0[lol][1] == "number")
+						{
+							lol++;
+							curr_token = x0[lol][0];
+
+							if (curr_token == ")")
+							{
+								cout << "this line is grammarly clear	" << c << endl;
+								lol++;
+								curr_token = x0[lol][0];
+								if (curr_token == "{")
+								{
+									lol++;
+									curr_token = x0[lol][0];
+								}
+							}
+							else cout << "this line is grammarly error" << endl;
+						}
+						else if (x0[lol][1] == "identifier")
+						{
+							lol++;
+							curr_token = x0[lol][0];
+							if (curr_token == ")")
+							{
+								cout << "this line is grammarly clear	" << c << endl;
+								lol++;
+								curr_token = x0[lol][0];
+								if (curr_token == "{")
+								{
+									lol++;
+									curr_token = x0[lol][0];
+								}
+							}
+							else cout << "this line is grammarly error" << endl;
+						}
+						else cout << "this line is grammarly error" << endl;
+					}
+					else cout << "this line is grammarly error" << endl;
+				}
+				else cout << "this line is grammarly error" << endl;
+			}
+			else cout << "this line is grammarly error" << endl;
+		}
+		else if (curr_token == "for")
+		{
+			c = curr_token;
+			lol++;
+			curr_token = x0[lol][0];
+			if (curr_token == "(")
+			{
+				lol++;
+				curr_token = x0[lol][0];
+				if (curr_token == "int")
+				{
+					lol++;
+					curr_token = x0[lol][0];
+					if (x0[lol][1] == "identifier" ) 
+					{
+
+						lol++;
+						curr_token = x0[lol][0];
+						if (curr_token == "=")
+						{
+							lol++;
+							curr_token = x0[lol][0];
+							if (x0[lol][1] == "number")
+							{
+								lol++;
+								curr_token = x0[lol][0];
+								if (curr_token == ";")
+								{
+
+									lol++;
+									curr_token = x0[lol][0];
+									if (x0[lol][1] == "identifier")
+									{
+										lol++;
+										curr_token = x0[lol][0];
+										if (curr_token == "<=" || curr_token == "<" || curr_token == ">" || curr_token == ">=")
+										{
+											lol++;
+											curr_token = x0[lol][0];
+											if (x0[lol][1] == "identifier")
+											{
+												lol++;
+												curr_token = x0[lol][0];
+												if (curr_token == ";")
+												{
+													lol++;
+													curr_token = x0[lol][0];
+													if (x0[lol][1] == "identifier")
+													{
+														lol++;
+														curr_token = x0[lol][0];
+														if (curr_token == "=")
+														{
+															lol++;
+															curr_token = x0[lol][0];
+															if (x0[lol][1] == "identifier")
+															{
+																lol++;
+																curr_token = x0[lol][0];
+																if (curr_token == "+")
+																{
+																	lol++;
+																	curr_token = x0[lol][0];
+																	if (x0[lol][1] == "number")
+																	{
+																		lol++;
+																		curr_token = x0[lol][0];
+																		if (curr_token == ")")
+																		{
+																			cout << "this line is grammarly clear	" << c << endl;
+																			lol++;
+																			curr_token = x0[lol][0];
+																		}
+																		else cout << "this line is grammarly error" << endl;
+																	}
+																	else cout << "this line is grammarly error" << endl;
+																}
+																else cout << "this line is grammarly error" << endl;
+															}
+															else cout << "this line is grammarly error" << endl;
+														}
+														else cout << "this line is grammarly error" << endl;
+													}
+													else cout << "this line is grammarly error" << endl;
+														
+
+												}
+												else cout << "this line is grammarly error";
+											}
+											else cout << "this line is grammarly error" << endl;
+										}
+										else cout << "this line is grammarly error" << endl;
+									}
+									else cout << "this line is grammarly error" << endl;
+								}
+								else cout << "this line is grammarly error" << endl;
+							}
+							else cout << "this line is grammarly error" << endl;
+						}
+						else cout << "this line is grammarly error" << endl;
+					}
+					else cout << "this line is grammarly error" << endl;
+				}
+				else cout << "this line is grammarly error" << endl;
+			}
+		}
+		else
+		{
+		
+			lol++;
+			curr_token = x0[lol][0];
+			//parser();
+		}
+	}
+}
+
+string blabla;
+int main()
+{
+	ifstream file("prog.txt");
+	string x;
+	string code = "";
+	while (std::getline(file, x)) {
+		code += x;
+	}
+
+	string s = "";
+	for (int i = 0; i < code.size(); i++)
+	{
+
+		if (code[i] != ' ')
+			s += code[i];//s=s+code[i];
+
+		else
+		{
+			if (s == "+" || s == "-" || s == "*" || s == "/" || s == "^" || s == "&&" || s == "||" ||
+				s == "=" || s == "==" || s == "!=" || s == "&" || s == "|" || s == "%" || s == "++" || s == "--" || s
+				== "+=" || s == "-=" || s == "/=" || s == "*=" || s == "%=")
+			{
+				cout << s << " is an operator" << endl;
+				blabla = s;
+				x0[counter][0] = blabla;
+				x0[counter][1] = "operator";
+				s = "";
+				counter++;
+			}
+			else if (isKeyword(s))
+			{
+				cout << s << " is a keyword" << endl;
+				blabla = s;
+				x0[counter][0] = blabla;
+				x0[counter][1] = "keyword";
+				s = "";
+				counter++;
+			}
+			else if (s == "(" || s == "{" || s == "[" || s == ")" || s == "}" || s == "]" || s == "<" || s == ">" ||
+				s == "<=" || s == ">=" ||
+				s == ";" || s =="()" || s == "<<" || s == ">>" || s == "," || s == "#"|| s == "\"" )
+			{
+				cout << s << " is a symbol" << endl;
+				blabla = s;
+				x0[counter][0] = blabla;
+				x0[counter][1] = "symbol";
+				counter++;
+				s = "";
+			}
+			else if (s == "\n" || s == " ")
+			{
+				s = "";
+			}
+			else if (validIdentifier(s))
+			{
+				cout << s << " is an identifier" << endl;
+				blabla = s;
+				x0[counter][0] = blabla;
+				x0[counter][1] = "identifier";
+				s = "";
+				counter++;
+			}
+			else if (isNumber(s))
+			{
+				cout << s << " is a number" << endl;
+				blabla = s;
+				x0[counter][0] = blabla;
+				x0[counter][1] = "number";
+				s = "";
+				counter++;
+
+			}
+
+			else { cout << " error " << endl;  break; }
+			
+		}
+	}
+	ofstream myfile;
+	myfile.open("parse.txt");
+	myfile << counter << endl;
+	for (int i = 0; i < counter; i++)
+	{
+		for (int j = 0; j < 2; j++)
+		{
+			cout << "Element at x[" << i
+				<< "][" << j << "]: ";
+			cout << x0[i][j] << endl;
+			myfile << x0[i][j] << " ";
+
+		}
+		myfile << "\n";
+	}
+	myfile.close();
+	curr_token = x0[0][0];
+
+	parser();
+}
